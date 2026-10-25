@@ -1,0 +1,128 @@
+#include<iostream>       //0 zajecia (stworzenie wszytskich funkcji w oparciu o struct)
+#include<string>
+using namespace std;
+struct osoba{
+    string imie;
+    string nazwisko;
+    int numerindeksu;
+    bool obecny;
+};
+osoba grupa[10];
+int liczbaosob=0;
+
+void dodajOsobe(osoba* grupa, int &liczbaosob, string imie, string nazwisko, int indeks) {
+    if (liczbaosob < 10) {
+        grupa[liczbaosob].imie = imie;
+        grupa[liczbaosob].nazwisko = nazwisko;
+        grupa[liczbaosob].numerindeksu = indeks;
+        grupa[liczbaosob].obecny = 0;
+        
+        liczbaosob++; 
+    }
+}
+void ustawobecnosc(osoba* grupa, string nazwiskoSprawdzane, int &liczbaosob) {
+    for(int i = 0; i < liczbaosob; i++) {
+        if(grupa[i].nazwisko == nazwiskoSprawdzane) {
+            grupa[i].obecny = 1;
+            break;
+        }
+    }
+}
+void wyswietllisteobecnosci(osoba *grupa, int &liczbaosob) {
+    cout << "\nLista obecnosci" << endl;
+    for(int i = 0; i < liczbaosob; i++) {
+        if(grupa[i].nazwisko != "") {
+            cout << grupa[i].nazwisko << " - " << (grupa[i].obecny ? "1" : "0") << endl;
+        }
+    }
+}
+void edycjadanych(osoba* grupa, int &liczbaosob){
+    string nazwiskodozmienienia;
+    int opcje;
+    cout<<"Podaj nazwisko osoby, ktorej dane chcesz zmienic: ";
+    cin>>nazwiskodozmienienia;
+    for(int i=0; i<liczbaosob; i++){
+        if(grupa[i].nazwisko==nazwiskodozmienienia){
+            cout<<"Co chcesz zmienic: 1.Imie \n2.Nazwisko \n3.Indeks \n4.Obecnosc ";
+            cin>>opcje;
+            if(opcje==1){
+                cout<<"Podaj nowe imie: ";
+                cin>>grupa[i].imie;
+            }
+            else if(opcje==2){
+                cout<<"Podaj nowe nazwisko: ";
+                cin>>grupa[i].nazwisko;
+            }
+            else if(opcje==3){
+                cout<<"Podaj nowy indeks: ";
+                cin>>grupa[i].numerindeksu;
+            }
+            else if(opcje==4){
+                cout<<"Zmien obecnosc: 0 lub 1 ";
+                cin>>grupa[i].obecny;
+            }
+            else{
+                cout<<"Nie ma takiej opcji"<<endl;
+            }
+            return;
+        }
+    }
+      cout<<"Nie znaleziono takiej osoby"<<endl;
+}
+void usuwanieosob(osoba* grupa, int &liczbaosob){
+    string nazwisko;
+    cout<<"Podaj nazwisko osoby, ktora chcesz usunac: ";
+    cin>>nazwisko;
+    for(int i=0; i<liczbaosob; i++){
+        if(grupa[i].nazwisko==nazwisko){
+            grupa[i]=grupa[liczbaosob-1];
+            liczbaosob--;
+            return;
+        }
+     }
+     cout<<"Nie ma takiego nazwiska"<<endl;
+}
+int main() {
+    int wybor;
+    do {
+       cout<<"1-Dodaj osobe"<<endl;
+       cout<<"2-Sprawdz obecnosc-podaj nazwisko"<<endl;
+       cout<<"3-Wyswietl liste obecnosci"<<endl;
+       cout<<"4-Edycja danych"<<endl;
+       cout<<"5-Usuwanie osoby"<<endl;
+       cout<<"0-Wyjscie"<<endl;
+       cout<<"Wybierz opcje: ";
+         cin>>wybor;
+        
+         if (wybor == 1) {
+             string imie, nazwisko;
+             int indeks;
+             cout << "Podaj imie: "; cin >> imie;
+             cout << "Podaj nazwisko: "; cin >> nazwisko;
+            cout << "Podaj indeks: "; cin >> indeks;
+             dodajOsobe(grupa, liczbaosob, imie, nazwisko, indeks);
+        }
+        else if (wybor == 2) {
+            string nazwiskoDoSprawdzenia;
+            cout << "Podaj nazwisko osoby, ktora jest obecna: ";
+            cin >> nazwiskoDoSprawdzenia;
+            ustawobecnosc(grupa, nazwiskoDoSprawdzenia, liczbaosob);
+        } 
+        else if (wybor == 3) {
+            wyswietllisteobecnosci(grupa, liczbaosob);
+        } 
+        else if(wybor==4) {
+                edycjadanych(grupa, liczbaosob);
+            }
+         else if(wybor==5) {
+                usuwanieosob(grupa, liczbaosob);
+            }
+        else if (wybor == 0) {
+            cout << "Koniec programu." << endl;
+        }
+        else {
+            cout << "nie ma takiej opcji" << endl;
+        }
+    } while (wybor != 0);
+    return 0;
+}
