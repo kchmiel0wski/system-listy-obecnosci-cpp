@@ -1,66 +1,98 @@
-#include<iostream>     //4zajecia    testowanie zasad polimorfizmu i dziedziczenia na funkcji drukuj i przykładowych osobach
+#include<iostream>      //5 zajecia
 #include<string>
+#include<fstream>
 using namespace std;
 
-//Polimorfizm to możliwość wywołania tej samej metody na różnych obiektach i uzyskania różnych wyników.
-//Mamy jedna funkcje ale rozne obiekty i dlatego wywolanie tej funkcji daje rozne efekty, bo kazdy obiekt reaguje inaczej
-//Możliwe jest to dzięki trzem rzeczom: 1.dziedziczenie→ student i pracownik są też osoba
-//                                      2.virtual→ metoda może być nadpisana w dzieciach
-//                                      3.wskaźniki→ zachowują prawdziwy typ obiektu (tutaj status)
+class Iseriazable{
+    public:
+    virtual string przedstawSie() = 0;
+    virtual void zapiszDoPliku(string nazwaPliku) = 0;
+};
 
-class osoba{
-    private:   //private jest puste, bo protected to tak naprawde rozszerzony private o dziedziczenie, (protected tez udziela dostepu do informacji wewnatrz klasy)
-    protected: //protected jest potrzebne do dziedziczenia, pomimo tego ze juz jest private
+void drukuj(Iseriazable* obj){
+    cout << obj->przedstawSie() << endl;
+}
+
+class osoba : public Iseriazable{   //czemu tu nie trzeba dzialac na wskazniku
+    private:                            
+    protected:
     string imie;
     string nazwisko;
     int numerindeksu;
-    public:  //gettery pozyskuja konkretne informacje o poszczegolnych rodzajach ludzi ktorzy juz sa zapisani w mainie i dzieki return imie wyswietlaja do konsoli
-             //gettery i settery trzeba zawsze zdefiniowac co maja robic, umownie get-pobierac, set-ustawiac
-    string getImie(){  //getter pobierajacy imie i zwracjacy je tam gdzie zostal wywolany
+    public:
+    string getImie(){ 
         return imie;
      }
-    string getNazwisko() { 
-        return nazwisko;
+    string getNazwisko() {
+         return nazwisko;
      }
-    int getNumerIndeksu() { 
-        return numerindeksu;
-     }
-    void setImie(string noweImie)  { //przyklad dzialania: ania z maina trafia do noweImie i zostaje zapisana do imie, zeby moc je potem wyswielic
-        imie = noweImie;
-     }
+    int getNumerIndeksu() {
+         return numerindeksu;
+    }
+    void setImie(string noweImie) { 
+        imie = noweImie; 
+    }
     void setNazwisko(string noweNazwisko) {
-         nazwisko = noweNazwisko;
-         }
-    void setNumerIndeksu(int nowyNumerIndeksu)  {
-         numerindeksu = nowyNumerIndeksu;
-         }
-
-                            //funkcja drukuj znajduje sie w clasie osoba, bo: 1.W main mamy tablice wskaznikow na osoby  2.Inne funkcje nadpisuja ja po swojemu
-    virtual void drukuj(){  //virtual pozwala na zmiane lub dodawanie roznych rzeczy w clasach dziedziczacych
+         nazwisko = noweNazwisko; 
+        }
+    void setNumerIndeksu(int nowyNumerIndeksu) { 
+        numerindeksu = nowyNumerIndeksu;
+     }
+    string przedstawSie(){
+        return "Osoba: " + imie + " " + nazwisko + " o indeksie " + to_string(numerindeksu);
+    }
+    virtual void zapiszDoPliku(string nazwaPliku){   //po co tutaj tez musimy tworzyc ta funkcje, skoroc juz w interfjesie mamy
+        ofstream plik(nazwaPliku);
+        plik << "Imie: " << imie << endl;
+        plik << "Nazwisko: " << nazwisko << endl;
+        plik << "Numer indeksu: " << numerindeksu << endl;
+        plik << przedstawSie() << endl;
+        plik.close();
+    }
+    virtual void drukuj(){
         cout<<"Imie: "<<imie<<endl;
         cout<<"Nazwisko: "<<nazwisko<<endl;
         cout<<"Numer indeksu: "<<numerindeksu<<endl;
-        cout<<"Osoba: "<<imie<<" "<<nazwisko<<" o indeksie "<<numerindeksu<<endl;
+        cout<<przedstawSie()<<endl;
     }
 };
-                             //dziedziczenie pozwala dodtkowo zmieniac metody i pola klasy rodzica i dodawac wlasne pola i metody
-class student: public osoba{ //student dziedziczy po klasie osoba pola (imiem nazwisko, itp) i metody (gettery settery drukuj)
+
+class student: public osoba{
     public:
+    string przedstawSie(){
+        return "Student: " + getImie() + " " + getNazwisko() + " o indeksie " + to_string(getNumerIndeksu());
+    }
     void drukuj(){
-        cout<<"Imie: "<<getImie()<<endl;   //getter wyswietlajacy imie
+        cout<<"Imie: "<<getImie()<<endl;
         cout<<"Nazwisko: "<<getNazwisko()<<endl;
         cout<<"Numer indeksu: "<<getNumerIndeksu()<<endl;
-        cout<<"Student: "<<getImie()<<" "<<getNazwisko()<<" o indeksie "<<getNumerIndeksu()<<endl;
+        cout<<przedstawSie()<<endl;
+    }
+};
+
+class studentZaoczny: public student{
+    public:
+    string przedstawSie(){
+        return "Student zaoczny: " + getImie() + " " + getNazwisko() + " o indeksie " + to_string(getNumerIndeksu());
+    }
+    void drukuj(){
+        cout<<"Imie: "<<getImie()<<endl;
+        cout<<"Nazwisko: "<<getNazwisko()<<endl;
+        cout<<"Numer indeksu: "<<getNumerIndeksu()<<endl;
+        cout<<przedstawSie()<<endl;
     }
 };
 
 class pracowmik: public osoba{
     public:
-    void drukuj(){    //za kazdym razem trzeba przepisywac cala skladnie funkcji bo zazwyczaj chcemy cos zmienic lub dopisac w tej funkcji, wiec musi byc wszytsko jasno okreslone 
+    string przedstawSie(){
+        return "Pracownik: " + getImie() + " " + getNazwisko() + " o indeksie " + to_string(getNumerIndeksu());
+    }
+    void drukuj(){
         cout<<"Imie: "<<getImie()<<endl;
         cout<<"Nazwisko: "<<getNazwisko()<<endl;
         cout<<"Numer indeksu: "<<getNumerIndeksu()<<endl;
-        cout<<"Pracownik: "<<getImie()<<" "<<getNazwisko()<<" o indeksie "<<getNumerIndeksu()<<endl;
+        cout<<przedstawSie()<<endl;
     }
 };
 
@@ -69,7 +101,6 @@ class ListaObecnosci{
     osoba* grupa[10];
     int obecny[10];
     int liczbaosob=0;
-
     public:
     void dodajOsobe(osoba* nowaosoba) {
         if (liczbaosob < 10) {
@@ -103,20 +134,20 @@ class ListaObecnosci{
             if(grupa[i]->getNazwisko()==nazwiskodozmienienia){
                 cout<<"Co chcesz zmienic: 1.Imie \n2.Nazwisko \n3.Indeks \n4.Obecnosc ";
                 cin>>opcje;
-                if(opcje==1){ 
-                    cout<<"Podaj nowe imie: ";
+                if(opcje==1){
+                     cout<<"Podaj nowe imie: ";
                      cin>>imie;
-                      grupa[i]->setImie(imie);
-                     }
-                else if(opcje==2){
-                     cout<<"Podaj nowe nazwisko: ";
-                     cin>>nazwisko;
-                      grupa[i]->setNazwisko(nazwisko);
+                      grupa[i]->setImie(imie); 
+                    }
+                else if(opcje==2){ 
+                    cout<<"Podaj nowe nazwisko: ";
+                     cin>>nazwisko; 
+                     grupa[i]->setNazwisko(nazwisko);
                      }
                 else if(opcje==3){ 
                     cout<<"Podaj nowy indeks: ";
-                     cin>>indeks;
-                      grupa[i]->setNumerIndeksu(indeks);
+                     cin>>indeks; 
+                     grupa[i]->setNumerIndeksu(indeks);
                      }
                 else if(opcje==4){ 
                     cout<<"Zmien obecnosc: 0 lub 1 "; 
@@ -153,6 +184,7 @@ class InterfejsUzytkownika{
     ListaObecnosci* listy;
     int* liczbaList;
     int aktywnaLista;
+    Iseriazable* obiektZapisu;
 
     void dodajDoKatalogu(){
         string imie, nazwisko;
@@ -202,10 +234,16 @@ class InterfejsUzytkownika{
             cout<<"Dodano na liste."<<endl;
         }
     }
+    void zapiszDoPliku(Iseriazable* obj){
+        string nazwaPliku;
+        cout<<"Podaj nazwe pliku do ktorego chcesz zapisac: ";
+        cin>>nazwaPliku;
+        obj->zapiszDoPliku(nazwaPliku);
+    }
 
     public:
-    InterfejsUzytkownika(osoba* kat, int* lOsob, ListaObecnosci* lst, int* lList)
-        : katalog(kat), liczbaosob(lOsob), listy(lst), liczbaList(lList), aktywnaLista(-1) {}
+    InterfejsUzytkownika(osoba* kat, int* lOsob, ListaObecnosci* lst, int* lList, Iseriazable* obj)
+        : katalog(kat), liczbaosob(lOsob), listy(lst), liczbaList(lList), aktywnaLista(-1), obiektZapisu(obj) {}
 
     void uruchom(){
         int wybor;
@@ -218,27 +256,34 @@ class InterfejsUzytkownika{
             cout<<"6-Wyswietl liste obecnosci"<<endl;
             cout<<"7-Edycja danych"<<endl;
             cout<<"8-Usuwanie osoby z listy"<<endl;
+            cout<<"9-Zapis do pliku"<<endl;
             cout<<"0-Wyjscie"<<endl;
             if(aktywnaLista >= 0)
                 cout<<"(aktywna lista: "<<aktywnaLista+1<<")"<<endl;
             cout<<"Wybierz opcje: ";
             cin>>wybor;
 
-            if(wybor == 1) dodajDoKatalogu();
-            else if(wybor == 2) utworzListe();
-            else if(wybor == 3) wybierzListe();
-            else if(wybor == 4){
-                if(aktywnaLista < 0){
-                     cout<<"Najpierw wybierz liste (opcja 3)."<<endl;
-                      continue;
+            if(wybor == 1) 
+            dodajDoKatalogu();   
+            
+            else if(wybor == 2)
+             utworzListe();
+            
+             else if(wybor == 3) 
+             wybierzListe();
+           
+             else if(wybor == 4){
+                if(aktywnaLista < 0){ 
+                    cout<<"Najpierw wybierz liste (opcja 3)."<<endl;
+                     continue;
                      }
                 dodajNaListe();
             }
             else if(wybor == 5){
                 if(aktywnaLista < 0){ 
-                    cout<<"Najpierw wybierz liste."<<endl; 
-                    continue; 
-                }
+                    cout<<"Najpierw wybierz liste."<<endl;
+                     continue;
+                     }
                 string nazwiskoDoSprawdzenia;
                 cout << "Podaj nazwisko osoby, ktora jest obecna: ";
                 cin >> nazwiskoDoSprawdzenia;
@@ -247,14 +292,14 @@ class InterfejsUzytkownika{
             else if(wybor == 6){
                 if(aktywnaLista < 0){
                      cout<<"Najpierw wybierz liste."<<endl;
-                      continue;
-                     }
+                      continue; 
+                    }
                 listy[aktywnaLista].wyswietllisteobecnosci();
             }
             else if(wybor == 7){
-                if(aktywnaLista < 0){
-                     cout<<"Najpierw wybierz liste."<<endl;
-                      continue; 
+                if(aktywnaLista < 0){ 
+                    cout<<"Najpierw wybierz liste."<<endl;
+                     continue; 
                     }
                 listy[aktywnaLista].edycjadanych();
             }
@@ -265,6 +310,51 @@ class InterfejsUzytkownika{
                 }
                 listy[aktywnaLista].usuwanieosob();
             }
+            else if(wybor==9){
+                if (aktywnaLista<0){ 
+                    cout<<"Najpierw wybierz liste."<<endl;
+                    continue;
+                }
+                string nazwaPliku;
+                int wyborZapisu;
+                cout<<"Podaj nazwe pliku do ktorego chcesz zapisac:";
+                cin>>nazwaPliku;
+                cout<<"Wybierz co chcesz zapisac:"<<endl;
+                cout<<"1. - Liste obecnosci"<<endl;
+                cout<<"2. - Katalog osob"<<endl;
+                cout<<"3. - Konkretnego studenta"<<endl;
+                cin>>wyborZapisu;
+                if (wyborZapisu==1){
+                    cout<<"Zapisz liste obecnosci"<<endl;
+                    obiektZapisu->zapiszDoPliku(nazwaPliku);
+                }
+                else if (wyborZapisu==2){
+                    cout<<"Zapisz katalog osob"<<endl;
+                    obiektZapisu->zapiszDoPliku(nazwaPliku);
+                }
+                else if(wyborZapisu==3){
+                    string nazwiskostudenta;
+                    cout<<"Zapisz konkretnego studenta"<<"\n"<<"Podaj nazwisko studenta: ";
+                    cin>>nazwiskostudenta;
+                    obiektZapisu->zapiszDoPliku(nazwaPliku);
+                    cout<<"Zapisano studenta "<<nazwiskostudenta<<" do pliku "<<nazwaPliku<<endl;
+                }
+                else{
+                    cout<<"Nie ma takiej opcji"<<endl;
+                    continue;
+                }
+
+                ofstream plik(nazwaPliku);
+                if(plik.is_open()){
+                    plik<<obiektZapisu->przedstawSie()<<endl;
+                    plik.close();
+                    cout<<"Zapisano do pliku "<<nazwaPliku<<endl;
+                }
+                else {
+                    cout<<"Nie mozna otworzyc pliku."<<endl;
+                    continue;
+                }
+            }
             else if(wybor == 0) cout << "Koniec programu." << endl;
             else cout << "nie ma takiej opcji" << endl;
         } while(wybor != 0);
@@ -272,9 +362,9 @@ class InterfejsUzytkownika{
 };
 
 int main() {
-    osoba* tab[3];            //tworzymy tablice wskazników, bo bez nich przy drukowaniu tabow ginie status tych osob czyli student lub pracownik
-    osoba os1;                //osoby maja informacje o imieniu nazwisku, numerze indeksu i ze jest status osoba, a nie student czy cokolwiek innego
-    os1.setImie("Michal");    //wskazniki powoduje ze w pelni wskazujemy na danego czlowieka czyli na studenta albo pracownika ktorzy maja status i reszte cech osoby
+    osoba* tab[4];
+    osoba os1;
+    os1.setImie("Michal");
     os1.setNazwisko("Nowogrodzki");
     os1.setNumerIndeksu(12345);
 
@@ -288,13 +378,26 @@ int main() {
     pr1.setNazwisko("Wisniewski");
     pr1.setNumerIndeksu(11111);
 
+    studentZaoczny sz1;
+    sz1.setImie("Piotr");
+    sz1.setNazwisko("Zielinski");
+    sz1.setNumerIndeksu(22222);
+
     tab[0] = &os1;
     tab[1] = &st1;
     tab[2] = &pr1;
+    tab[3] = &sz1;
 
     tab[0]->drukuj();
     tab[1]->drukuj();
     tab[2]->drukuj();
+    tab[3]->drukuj();
+
+    cout<<"\n przez interfejs Iprzedstawialny"<<endl;
+    drukuj(&os1);
+    drukuj(&st1);
+    drukuj(&pr1);
+    drukuj(&sz1);
 
     return 0;
 }
